@@ -21,6 +21,11 @@ class ProdutoController {
 
         render(template: "/produto/form", model:[produto: novoProduto])
     }
+    def editar() {
+        Produto produto = Produto.get(params.id)
+        render(template: "/produto/form", model:[produto: produto])
+    }
+
     def lista() {
         def lista = Produto.list()
         render(template: "/produto/lista", model:[produtos: lista])
@@ -30,6 +35,7 @@ class ProdutoController {
     def salvar() {
         Produto produto = null
         Estoque estoque = null
+
         if(params.id){
             produto = Produto.get(params.id)
             estoque = produto.estoque
@@ -51,7 +57,6 @@ class ProdutoController {
         produto.estoque.save(flush:true)
 
         if (!produto.hasErrors()){
-
             //permitir o failonError
             produto.save(flush:true)
             render("Salvou com sucesso")
@@ -59,11 +64,15 @@ class ProdutoController {
             produto.errors.allErrors.each {
                 println this
             }
-
             render("Ops... deu pau!")
         }
+    }
+    @Transactional
+    def excluir() {
+        Produto produto = Produto.get(params.id)
+        produto.delete(flush:true)
 
-        println produto
-
+        def lista = Produto.list()
+        render(template: "/produto/lista", model:[produtos: lista])
     }
 }
