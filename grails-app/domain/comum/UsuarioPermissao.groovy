@@ -1,13 +1,7 @@
 package comum
 
-import grails.gorm.DetachedCriteria
-import groovy.transform.ToString
+import org.apache.commons.lang.builder.HashCodeBuilder
 
-import org.codehaus.groovy.util.HashCodeHelper
-import grails.compiler.GrailsCompileStatic
-
-@GrailsCompileStatic
-@ToString(cache=true, includeNames=true, includePackage=false)
 class UsuarioPermissao implements Serializable {
 
 	private static final long serialVersionUID = 1
@@ -17,71 +11,88 @@ class UsuarioPermissao implements Serializable {
 
 	@Override
 	boolean equals(other) {
-		if (other instanceof UsuarioPermissao) {
-			other.usuarioId == usuario?.id && other.permissaoId == permissao?.id
+		if (!(other instanceof UsuarioPermissao)) {
+			return false
 		}
+		other.usuarioId == usuario?.id &&
+		other.permissaoId == permissao?.id
 	}
 
-    @Override
+	@Override
 	int hashCode() {
-	    int hashCode = HashCodeHelper.initHash()
-        if (usuario) {
-            hashCode = HashCodeHelper.updateHash(hashCode, usuario.id)
-		}
-		if (permissao) {
-		    hashCode = HashCodeHelper.updateHash(hashCode, permissao.id)
-		}
-		hashCode
+		def builder = new HashCodeBuilder()
+		if (usuario) builder.append(usuario.id)
+		if (permissao) builder.append(permissao.id)
+		builder.toHashCode()
 	}
 
 	static UsuarioPermissao get(long usuarioId, long permissaoId) {
-		criteriaFor(usuarioId, permissaoId).get()
-	}
-
-	static boolean exists(long usuarioId, long permissaoId) {
-		criteriaFor(usuarioId, permissaoId).count()
-	}
-
-	private static DetachedCriteria criteriaFor(long usuarioId, long permissaoId) {
 		UsuarioPermissao.where {
 			usuario == Usuario.load(usuarioId) &&
 			permissao == Permissao.load(permissaoId)
-		}
+		}.get()
+	}
+	static boolean exists(long usuarioId, long permissaoId) {
+		UsuarioPermissao.where {
+			usuario == Usuario.load(usuarioId) &&
+			permissao == Permissao.load(permissaoId)
+		}.count() > 0
 	}
 
 	static UsuarioPermissao create(Usuario usuario, Permissao permissao, boolean flush = false) {
 		def instance = new UsuarioPermissao(usuario: usuario, permissao: permissao)
-		instance.save(flush: flush)
+		instance.save(flush: flush, insert: true)
 		instance
 	}
 
-	static boolean remove(Usuario u, Permissao r) {
-		if (u != null && r != null) {
-			UsuarioPermissao.where { usuario == u && permissao == r }.deleteAll()
-		}
+	static boolean remove(Usuario u, Permissao r, boolean flush = false) {
+		if (u == null || r == null) return false
+
+		int rowCount = UsuarioPermissao.where {
+			usuario == Usuario.load(u.id) &&
+			permissao == Permissao.load(r.id)
+		}.deleteAll()
+
+		if (flush) { UsuarioPermissao.withSession { it.flush() } }
+
+		rowCount > 0
 	}
 
-	static int removeAll(Usuario u) {
-		u == null ? 0 : UsuarioPermissao.where { usuario == u }.deleteAll() as int
+	static void removeAll(Usuario u, boolean flush = false) {
+		if (u == null) return
+
+		UsuarioPermissao.where {
+			usuario == Usuario.load(u.id)
+		}.deleteAll()
+
+		if (flush) { UsuarioPermissao.withSession { it.flush() } }
 	}
 
-	static int removeAll(Permissao r) {
-		r == null ? 0 : UsuarioPermissao.where { permissao == r }.deleteAll() as int
-	}
+	static void removeAll(Permissao r, boolean flush = false) {
+		if (r == null) return
 
+		UsuarioPermissao.where {
+			permissao == Permissao.load(r.id)
+		}.deleteAll()
+
+		if (flush) { UsuarioPermissao.withSession { it.flush() } }
+	}
 	static constraints = {
-	    usuario nullable: false
-		permissao nullable: false, validator: { Permissao r, UsuarioPermissao ur ->
-			if (ur.usuario?.id) {
-				if (UsuarioPermissao.exists(ur.usuario.id, r.id)) {
-				    return ['userRole.exists']
-				}
+		permissao validator: { Permissao r, UsuarioPermissao ur ->
+			if (ur.usuario == null) return
+			boolean existing = false
+			UsuarioPermissao.withNewSession {
+				existing = UsuarioPermissao.exists(ur.usuario.id, r.id)
+			}
+			if (existing) {
+				return 'userRole.exists'
 			}
 		}
 	}
 
 	static mapping = {
-		id composite: ['usuario', 'permissao']
+		id composite: ['permissao', 'usuario']
 		version false
+		permissao lazy: false
 	}
 }

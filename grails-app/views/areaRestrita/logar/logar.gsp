@@ -5,7 +5,7 @@
         <title>Àrea restrita - Restaurante tô com Fome</title>
     </head>
     <body>
-        form action='${request.contextPath}/j_spring_security_check' method='POST' id='frmLogar' name='frmLogar'>
+        <form action='${request.contextPath}/j_spring_security_check' method='POST' id='frmLogar' name='frmLogar'>
             <p>
                 Email
                 <input type='text' name='j_username' id='username' />

@@ -1,13 +1,7 @@
 package comum
 
 import grails.plugin.springsecurity.SpringSecurityService
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
-import grails.compiler.GrailsCompileStatic
 
-@GrailsCompileStatic
-@EqualsAndHashCode(includes='username')
-@ToString(includes='username', includeNames=true, includePackage=false)
 class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 1
