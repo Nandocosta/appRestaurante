@@ -6,10 +6,8 @@
     </head>
     <body>
         <sec:ifLoggedIn>
-            <sec:ifAllGranted roles="ROLE_ADMIN">
-                Olá, ${Usuario}
-                <a href="/restauranteToComFome/j_spring_security_logout">Sair</a>
-            </sec:ifAllGranted>
+              Olá, ${Usuario}
+              <a href="/restauranteToComFome/j_spring_security_logout">Sair</a>
         </sec:ifLoggedIn>
 
     </body>

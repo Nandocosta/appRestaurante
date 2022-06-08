@@ -24,7 +24,7 @@ class Usuario implements Serializable {
 	}
 
 	Set<Permissao> getAuthorities() {
-		(UsuarioPermissao.findAllByUsuario(this) as List<UsuarioPermissao>)*.permissao as Set<Permissao>
+		UsuarioPermissao.findAllByUsuario(this).collect { it.permissao }
 	}
 
 	def beforeInsert() {
