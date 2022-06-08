@@ -1,12 +1,9 @@
 package comum
 
-import grails.plugin.springsecurity.SpringSecurityService
 
 class Usuario implements Serializable {
 
-	private static final long serialVersionUID = 1
-
-	SpringSecurityService springSecurityService
+	transient springSecurityService
 
 	String username
 	String password
@@ -14,6 +11,17 @@ class Usuario implements Serializable {
 	boolean accountExpired
 	boolean accountLocked
 	boolean passwordExpired
+
+	static transients = ['springSecurityService']
+
+	static constraints = {
+		username blank: false, unique: true
+		password blank: false
+	}
+
+	static mapping = {
+		password column: '`password`'
+	}
 
 	Set<Permissao> getAuthorities() {
 		(UsuarioPermissao.findAllByUsuario(this) as List<UsuarioPermissao>)*.permissao as Set<Permissao>
@@ -33,14 +41,5 @@ class Usuario implements Serializable {
 		password = springSecurityService?.passwordEncoder ? springSecurityService.encodePassword(password) : password
 	}
 
-	static transients = ['springSecurityService']
 
-	static constraints = {
-		password nullable: false, blank: false, password: true
-		username nullable: false, blank: false, unique: true
-	}
-
-	static mapping = {
-		password column: '`password`'
-	}
 }

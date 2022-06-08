@@ -7,7 +7,7 @@ class Permissao implements Serializable {
 	String authority
 
 	static constraints = {
-		authority nullable: false, blank: false, unique: true
+		authority  blank: false, unique: true
 	}
 
 	static mapping = {
