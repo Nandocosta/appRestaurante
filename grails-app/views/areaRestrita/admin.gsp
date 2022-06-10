@@ -6,7 +6,7 @@
     </head>
     <body>
         <sec:ifLoggedIn>
-              Olá, ${Usuario}
+              Olá, ${usuario}
               <a href="/restauranteToComFome/j_spring_security_logout">Sair</a>
         </sec:ifLoggedIn>
 

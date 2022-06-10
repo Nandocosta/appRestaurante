@@ -9,8 +9,8 @@ package areaRestrita
 <body>
     <form action='${request.contextPath}/j_spring_security' method='POST' id='frmLogar' name='frmLogar'>
     <p>
-    Email
-    <input type='text' name='j_username' id='username' />
+        Email
+        <input type='text' name='j_username' id='username' />
     </P>
      <P>
         Senha

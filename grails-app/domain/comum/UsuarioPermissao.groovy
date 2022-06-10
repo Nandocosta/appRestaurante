@@ -14,8 +14,8 @@ class UsuarioPermissao implements Serializable {
 		if (!(other instanceof UsuarioPermissao)) {
 			return false
 		}
-		other.usuarioId == usuario?.id &&
-		other.permissaoId == permissao?.id
+		other.usuario?.id == usuario?.id &&
+		other.permissao?.id == permissao?.id
 	}
 
 	@Override
